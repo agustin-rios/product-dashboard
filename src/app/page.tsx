@@ -1,65 +1,145 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { ProductView as Product } from "@/contexts/product/domain/models/ProductView";
+import { KpiCard } from "@/components/Kpi";
+import { ProductTable } from "@/components/ProductTable";
+import { ProductDetail } from "@/components/ProductDetail";
+import { useProducts } from "./hooks/useProducts";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface DashboardStats {
+  totalProducts: number;
+  averagePrice: number;
+  averageRating: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  topCategory: string;
+  categoryCounts: Record<string, number>;
+}
+
+type SortKey = "title" | "category" | "price" | "finalPrice" | "rating" | "stock";
+type SortDir = "asc" | "desc";
+
+// ---------------------------------------------------------------------------
+// API
+// ---------------------------------------------------------------------------
+
+async function fetchStats(): Promise<DashboardStats> {
+  const res = await fetch("/api/products/stats");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
+const LIMIT = 8;
+
+export default function ProductDashboardPage() {
+  const [stats, setStats]       = useState<DashboardStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [selected, setSelected] = useState<Product | null>(null);
+
+  // Todo el estado de navegación vive aquí — ProductTable es solo presentación
+  const [page, setPage]   = useState(1);
+  const [sort, setSort]   = useState<{ key: SortKey; order: SortDir }>({
+    key: "price",
+    order: "asc",
+  });
+
+  // El hook devuelve su propio loading — no necesitamos duplicarlo en el page
+  const { data, total, loading: tableLoading } = useProducts({
+    page,
+    limit: LIMIT,
+    sortBy: sort.key,
+    order: sort.order,
+  });
+
+  useEffect(() => {
+    fetchStats()
+      .then(setStats)
+      .catch(console.error)
+      .finally(() => setStatsLoading(false));
+  }, []);
+
+  function handleSortChange(newSort: { key: SortKey; order: SortDir }) {
+    setSort(newSort);
+    setPage(1); // volver a página 1 al cambiar orden
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-6 lg:p-8 font-sans">
+
+      {/* Header */}
+      <header className="mb-6">
+        <h1 className="text-xl font-medium tracking-tight">Product Insights</h1>
+        <p className="text-[13px] text-gray-400 mt-0.5">Catálogo interno</p>
+      </header>
+
+      {/* KPIs */}
+      <section
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
+        aria-label="Métricas generales"
+      >
+        <KpiCard
+          label="Total productos"
+          value={stats?.totalProducts.toString() ?? "—"}
+          loading={statsLoading}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <KpiCard
+          label="Precio promedio"
+          value={stats ? `$${stats.averagePrice.toFixed(2)}` : "—"}
+          loading={statsLoading}
+        />
+        <KpiCard
+          label="Rating promedio"
+          value={stats ? `${stats.averageRating.toFixed(2)} / 5` : "—"}
+          sub={stats ? `Top: ${stats.topCategory}` : undefined}
+          loading={statsLoading}
+        />
+        <KpiCard
+          label="Bajo stock"
+          value={stats ? `${stats.lowStockCount} productos` : "—"}
+          sub={stats ? `${stats.outOfStockCount} sin stock` : undefined}
+          loading={statsLoading}
+          accent={stats && stats.lowStockCount > 0 ? "warning" : undefined}
+        />
+      </section>
+
+      {/* Tabla + detalle */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+
+        <ProductTable
+          products={data}
+          loading={tableLoading}
+          page={page}
+          total={total}
+          limit={LIMIT}
+          sort={sort}
+          selectedProductId={selected?.id ?? null}
+          onPageChange={setPage}
+          onSelectProduct={setSelected}
+          onSortChange={handleSortChange}
+        />
+
+        <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 overflow-y-auto max-h-[600px]">
+          {selected ? (
+            <ProductDetail product={selected} />
+          ) : (
+            <div className="flex items-center justify-center h-full py-16 text-[13px] text-gray-400 text-center">
+              Selecciona un producto
+              <br />
+              para ver el detalle
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+      </div>
+    </main>
   );
 }

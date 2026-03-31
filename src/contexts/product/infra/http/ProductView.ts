@@ -49,7 +49,7 @@ export class ProductRepository implements ProductViewPort {
       tags: dto.tags ?? [],
 
       rating: dto.rating ?? 0,
-      availabilityStatus: this.mapAvailability(dto.stock),
+      availabilityStatus: dto.availabilityStatus ?? "Unknown",
 
       stock: dto.stock ?? 0,
       minimumOrderQuantity: dto.minimumOrderQuantity ?? 1,
@@ -66,9 +66,4 @@ export class ProductRepository implements ProductViewPort {
     return Number((price * (1 - discount / 100)).toFixed(2));
   }
 
-  private mapAvailability(stock: number): string {
-    if (stock > 10) return "In Stock";
-    if (stock > 0) return "Low Stock";
-    return "Out of Stock";
-  }
 }
