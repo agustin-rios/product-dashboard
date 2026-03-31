@@ -75,6 +75,8 @@ export class ProductRepository implements ProductViewPort {
 
       reviewCount: reviews.length,
       reviews,
+
+      thumbnail: dto.thumbnail ?? "",
     };
   }
 

@@ -7,7 +7,7 @@ export interface Review {
 
 export interface ProductView {
   id: number;
-  
+
   title: string;
   description: string;
   price: number;
@@ -29,5 +29,7 @@ export interface ProductView {
 
   reviewCount: number;
   reviews: Review[];
+
+  thumbnail: string;
 
 }

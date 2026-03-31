@@ -11,5 +11,4 @@ export interface ProductViewPort {
     total: number;
   }>;
 
-  search(query: string): Promise<ProductView[]>;
 }

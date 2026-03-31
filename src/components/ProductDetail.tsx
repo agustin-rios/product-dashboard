@@ -1,4 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { ProductView as Product } from "@/contexts/product/domain/models/ProductView";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function StarRating({ value }: { value: number }) {
   return (
@@ -9,10 +16,36 @@ function StarRating({ value }: { value: number }) {
   );
 }
 
+function ProductImage({ src, alt }: { src: string; alt: string }) {
+  const [errored, setErrored] = useState(false);
+
+  if (errored) return null;
+
+  return (
+    <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+      <img
+        src={src}
+        alt={alt}
+        onError={() => setErrored(true)}
+        className="object-contain w-full h-full p-3 transition-opacity duration-300"
+      />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function ProductDetail({ product }: { product: Product }) {
+  const imageUrl = product.thumbnail;
+
   return (
     <div className="flex flex-col gap-4">
- 
+
+      {/* Imagen — solo se monta si el producto tiene imgUrl */}
+      {imageUrl && <ProductImage src={imageUrl} alt={product.title} />}
+
       <div>
         <h2 className="text-[15px] font-medium text-gray-900 dark:text-gray-100 leading-snug">
           {product.title}
@@ -24,7 +57,7 @@ export function ProductDetail({ product }: { product: Product }) {
           {product.description}
         </p>
       </div>
- 
+
       <dl className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px]">
         {(
           [
@@ -68,7 +101,7 @@ export function ProductDetail({ product }: { product: Product }) {
             </div>
           ))}
       </dl>
- 
+
       {product.reviews.length > 0 && (
         <div>
           <p className="text-[11px] uppercase tracking-widest text-gray-400 font-medium mb-2">
@@ -91,6 +124,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </ul>
         </div>
       )}
+
     </div>
   );
 }
