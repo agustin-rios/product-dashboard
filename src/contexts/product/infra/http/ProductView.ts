@@ -2,19 +2,35 @@ import { ProductViewPort } from "../../application/ports/ProductView";
 import { ProductView, Review } from "../../domain/models/ProductView";
 import { DummyJsonClient } from "@/util/DummyJsonCli";
 
+const SORT_FIELD_MAP: Record<string, string> = {
+  title:        "title",
+  category:     "category",
+  price:        "price",
+  finalPrice:   "price",   // no hay campo nativo → ordenamos por precio base
+  rating:       "rating",
+  stock:        "stock",
+};
+
 export class ProductRepository implements ProductViewPort {
   constructor(private client: DummyJsonClient) {}
 
-  async findAll({ limit, skip }: { limit: number; skip: number }) {
+    async findAll({ limit, skip, sortBy, order }: {
+    limit:  number;
+    skip:   number;
+    sortBy: string;
+    order:  "asc" | "desc";
+    }) {
+    const field = SORT_FIELD_MAP[sortBy] ?? sortBy;
+    
     const data = await this.client.get<any>(
-      `/products?limit=${limit}&skip=${skip}`
+        `/products?limit=${limit}&skip=${skip}&sortBy=${field}&order=${order}`
     );
-
+    
     return {
-      items: data.products.map((p: any) => this.toView(p)),
-      total: data.total,
+        items: data.products.map((p: any) => this.toView(p)),
+        total: data.total,
     };
-  }
+    }
 
   async search(query: string): Promise<ProductView[]> {
     const data = await this.client.get<any>(

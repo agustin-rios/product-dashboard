@@ -12,11 +12,18 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const limit = parseInt(searchParams.get("limit") ?? "10", 10);
-  const skip = parseInt(searchParams.get("skip") ?? "0", 10);
+  const limit  = parseInt(searchParams.get("limit")  ?? "10", 10);
+  const skip   = parseInt(searchParams.get("skip")   ?? "0",  10);
+  const sortBy = searchParams.get("sortBy") ?? "price";
+  const order  = (searchParams.get("order") ?? "asc") as "asc" | "desc";
 
   try {
-    const { items, total } = await productRepository.findAll({ limit, skip });
+    const { items, total } = await productRepository.findAll({
+      limit,
+      skip,
+      sortBy,
+      order,
+    });
 
     return new Response(
       JSON.stringify({

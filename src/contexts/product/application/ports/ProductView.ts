@@ -4,6 +4,8 @@ export interface ProductViewPort {
   findAll(params: {
     limit: number;
     skip: number;
+    sortBy: string;
+    order: "asc" | "desc";
   }): Promise<{
     items: ProductView[];
     total: number;
