@@ -59,9 +59,9 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 }
 
 function StockBadge({ stock, status }: { stock: number; status: string }) {
-  if (status === "Out of Stock" || stock === 0)
+  if (status === "Out of Stock")
     return <span className="inline-flex rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-0.5 text-[11px] font-medium text-red-700 dark:text-red-400">Sin stock</span>;
-  if (status === "Low Stock" || stock < 10)
+  if (status === "Low Stock")
     return <span className="inline-flex rounded-md bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">Bajo ({stock})</span>;
   return <span className="inline-flex rounded-md bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">{stock}</span>;
 }
