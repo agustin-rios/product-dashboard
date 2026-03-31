@@ -14,7 +14,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 export class ProductRepository implements ProductViewPort {
   constructor(private client: DummyJsonClient) {}
 
-    async findAll({ limit, skip, sortBy, order }: {
+  async findAll({ limit, skip, sortBy, order }: {
     limit:  number;
     skip:   number;
     sortBy: string;
@@ -30,14 +30,6 @@ export class ProductRepository implements ProductViewPort {
         items: data.products.map((p: any) => this.toView(p)),
         total: data.total,
     };
-    }
-
-  async search(query: string): Promise<ProductView[]> {
-    const data = await this.client.get<any>(
-      `/products/search?q=${query}`
-    );
-
-    return data.products.map((p: any) => this.toView(p));
   }
 
   private toView(dto: any): ProductView {
