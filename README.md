@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Product Dashboard
 
-## Getting Started
+## Cómo ejecutar el proyecto
 
-First, run the development server:
+1. Instala dependencias:
+
+```bash
+npm install
+```
+
+2. Inicia el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Abre en tu navegador:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Decisiones de producto y técnicas
 
-## Learn More
+- Usé **Next.js** con el directorio `app` para aprovechar rutas del lado del servidor y una estructura moderna.
+- La aplicación está pensada como un **dashboard de productos** con componentes reutilizables: `ProductTable`, `ProductDetail`, `Kpi` y `Skeleton`.
+- La arquitectura sigue una separación de responsabilidades: componentes UI en `src/components` y lógica de dominio/puertos en `src/contexts/product`.
+- Integré un cliente HTTP en `src/contexts/product/infra/http/ProductView.ts` para abstraer la carga de datos.
+- Se usa el hook `useProducts` en `src/hooks/useProducts.ts` para encapsular la obtención de datos y facilitar pruebas o cambios futuros.
 
-To learn more about Next.js, take a look at the following resources:
+## Limitaciones actuales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- No hay autenticación ni gestión de usuarios.
+- La aplicación no cuenta con paginación ni filtrado avanzado para listados de productos.
+- No existe manejo completo de errores de red o estados de carga sofisticados más allá de un `Skeleton` básico.
+- La lógica de negocio está simplificada y depende de endpoints de ejemplo sin una capa de cache o persistencia local.
+- No hay tests automatizados incluidos en el repositorio.
+- Las funcionalidades de detalle de producto y KPIs son básicas y podrían expandirse con más datos o visualizaciones.
+- Los url y puertos de la API están hardcodeados y no son configurables.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Qué mejoraría con más tiempo
 
-## Deploy on Vercel
+- Añadir **tests unitarios y de integración** para componentes y hooks.
+- Implementar **filtrado, búsqueda de catalogos y mejor paginación** en la tabla de productos.
+- Agregar **manejo de errores mejorado** y mensajes de UI cuando la API falla.
+- Crear una **capa de estado global** o un store para compartir producto seleccionado y datos entre componentes.
+- Incluir **autenticación** y una experiencia de usuario más completa con permisos y roles.
+- Optimizar el rendimiento con **renderizado en servidor** y caché de datos si el backend lo permite.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estructura principal
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/page.tsx`: entrada principal de la página.
+- `src/components`: componentes visuales del dashboard.
+- `src/hooks/useProducts.ts`: hook para obtener productos.
+- `src/contexts/product`: dominio y puertos para el modelo de producto.
+- `src/util/DummyJsonCli.ts`: utilidad relacionada con datos de ejemplo.
