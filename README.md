@@ -33,7 +33,7 @@ http://localhost:3000
 - No hay autenticación ni gestión de usuarios.
 - La aplicación no cuenta con paginación ni filtrado avanzado para listados de productos.
 - No existe manejo completo de errores de red o estados de carga sofisticados más allá de un `Skeleton` básico.
-- La lógica de negocio está simplificada y depende de endpoints de ejemplo sin una capa de cache o persistencia local.
+- La lógica está simplificada y depende de endpoints externos sin una capa de cache o persistencia local.
 - No hay tests automatizados incluidos en el repositorio.
 - Las funcionalidades de detalle de producto y KPIs son básicas y podrían expandirse con más datos o visualizaciones.
 - Los url y puertos de la API están hardcodeados y no son configurables.
